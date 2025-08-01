@@ -1,0 +1,25 @@
+trigger:
+  branches:
+    include:
+      - main  # Triggers pipeline on every push to main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '7.x.x'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    projects: '**/*.csproj'
+    arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)'
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: '<your-service-connection>'
+    appName: '<your-app-name>'
+    package: '$(Build.ArtifactStagingDirectory)/**/*.zip'
